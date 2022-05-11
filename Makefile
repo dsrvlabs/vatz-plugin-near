@@ -6,4 +6,4 @@ build:
 	go build main.go
 
 clean:
-	rm vatz
+	rm plugin
