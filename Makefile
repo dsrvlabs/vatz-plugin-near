@@ -1,9 +1,8 @@
-build:
-	cd protocol-status-plugin
-	go build main.go
-	cd ..
-	cd server-status-plugin
-	go build main.go
+.PHONY: do_script
 
-clean:
-	rm plugin
+start:
+	cd bin; /bin/bash start_plugins.sh
+
+
+stop:
+	cd bin; /bin/bash stop_plugins.sh
