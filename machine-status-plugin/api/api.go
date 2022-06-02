@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"machine-status-plugin/manager"
 	"net"
-	"server-status-plugin/manager"
 
 	pluginpb "github.com/dsrvlabs/vatz-proto/plugin/v1"
 	"google.golang.org/grpc"

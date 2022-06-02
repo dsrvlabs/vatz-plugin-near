@@ -6,7 +6,7 @@ import (
 
 	//"time"
 
-	plugin_grpc "server-status-plugin/api"
+	plugin_grpc "machine-status-plugin/api"
 )
 
 const (

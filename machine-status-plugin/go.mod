@@ -1,10 +1,9 @@
-module server-status-plugin
+module machine-status-plugin
 
 go 1.18
 
 require (
 	github.com/dsrvlabs/vatz-proto v0.0.0-20220420191920-c7decada518f
-	github.com/mackerelio/go-osstat v0.2.2
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.27.1
