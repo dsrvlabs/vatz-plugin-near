@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	grpcPort = 9091
+	grpcPort = 9092
 )
 
 type grpcService struct {
@@ -60,7 +60,7 @@ func (s *grpcService) Execute(ctx context.Context, in *pluginpb.ExecuteRequest) 
 	}
 }
 
-// StartServer try to start grpc service.
+// StartServer try to start api manager.
 func StartServer() error {
 	s := grpc.NewServer()
 	serv := grpcService{}

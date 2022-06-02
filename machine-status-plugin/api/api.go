@@ -1,10 +1,11 @@
-package grpc
+package api
 
 import (
 	"context"
 	"fmt"
 	"log"
 	"net"
+	"server-status-plugin/manager"
 
 	pluginpb "github.com/dsrvlabs/vatz-proto/plugin/v1"
 	"google.golang.org/grpc"
@@ -13,7 +14,11 @@ import (
 )
 
 const (
-	grpcPort = 9092
+	grpcPort = 9091
+)
+
+var (
+	msManager = manager.MSManager
 )
 
 type grpcService struct {
@@ -21,7 +26,7 @@ type grpcService struct {
 }
 
 func (s *grpcService) Verify(ctx context.Context, in *emptypb.Empty) (*pluginpb.VerifyInfo, error) {
-	fmt.Println("Plugin Verify Has been Called: ALIVE :::: 9092")
+	fmt.Println("Plugin Verify Has been Called: ALIVE : 9091")
 	resp := pluginpb.VerifyInfo{
 		VerifyMsg: "UP",
 	}
@@ -34,34 +39,16 @@ func (s *grpcService) Execute(ctx context.Context, in *pluginpb.ExecuteRequest) 
 	fmt.Println("Plugin Execute Has been Called: ALIVE")
 	req := in.ExecuteInfo.AsMap()["execute_method"].(string)
 
-	if req == "isUp" {
-		return &pluginpb.ExecuteResponse{
-			State:        pluginpb.STATE_FAILURE,
-			Message:      "This is SUCCESS Message for Test : isUp ",
-			AlertType:    []pluginpb.ALERT_TYPE{pluginpb.ALERT_TYPE_DISCORD},
-			Severity:     pluginpb.SEVERITY_CRITICAL,
-			ResourceType: "near-",
-		}, nil
-	} else if req == "getBlockHeight" {
-		return &pluginpb.ExecuteResponse{
-			State:        pluginpb.STATE_FAILURE,
-			Message:      "This is FAIL Message for Test :getBlockHeight ",
-			AlertType:    []pluginpb.ALERT_TYPE{pluginpb.ALERT_TYPE_DISCORD},
-			Severity:     pluginpb.SEVERITY_CRITICAL,
-			ResourceType: "near-",
-		}, nil
+	if req == "getCPUUsage" {
+		return msManager.GetCPUUsage()
+	} else if req == "getMemoryUsage" {
+		return msManager.GetMemoryUsage()
 	} else {
-		return &pluginpb.ExecuteResponse{
-			State:        pluginpb.STATE_FAILURE,
-			Message:      "This is FAIL Message for Test : else",
-			AlertType:    []pluginpb.ALERT_TYPE{pluginpb.ALERT_TYPE_DISCORD},
-			Severity:     pluginpb.SEVERITY_CRITICAL,
-			ResourceType: "near-",
-		}, nil
+		return msManager.GetDiskUsage()
 	}
 }
 
-// StartServer try to start grpc service.
+// StartServer try to start api manager.
 func StartServer() error {
 	s := grpc.NewServer()
 	serv := grpcService{}
