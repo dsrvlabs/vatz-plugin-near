@@ -118,8 +118,8 @@ func (ms *machineStatusManager) GetCPUUsage() (*pluginpb.ExecuteResponse, error)
 		severity = pluginpb.SEVERITY_WARNING
 	}
 
-	fmt.Println("Total CPU Usage: ", totalUsage, "%")
 	s := "Total CPU Usage: " + fmt.Sprintf("%.2f", totalUsage) + "%"
+	fmt.Println(s)
 
 	return &pluginpb.ExecuteResponse{
 		State:        state,
@@ -156,9 +156,8 @@ func (ms *machineStatusManager) GetMemoryUsage() (*pluginpb.ExecuteResponse, err
 		severity = pluginpb.SEVERITY_WARNING
 	}
 
-	fmt.Println("Total Memory Usage: ", totalUsage, "%")
 	s := "Total Memory Usage: " + fmt.Sprintf("%.2f", totalUsage) + "%"
-
+	fmt.Println(s)
 	return &pluginpb.ExecuteResponse{
 		State:        state,
 		Message:      s,

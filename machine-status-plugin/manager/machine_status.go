@@ -44,9 +44,18 @@ func (ms machineStatus) GetMemoryUsage() (float64, error) {
 }
 
 func (ms machineStatus) GetCPUUsage() (float64, error) {
-	percent, _ := cpu.Percent(time.Second, true)
+	_, err := cpu.Info()
+	if err != nil {
+		fmt.Printf("get cpu info failed, err:%v", err)
+	}
+
 	totalUsed := 0.0
-	totalUsed = percent[cpu.CPUser] + percent[cpu.CPNice] + percent[cpu.CPSys] + percent[cpu.CPIntr] + percent[cpu.CPIdle] + percent[cpu.CPUStates]
+	percent, _ := cpu.Percent(3*time.Second, false)
+	//fmt.Printf("cpu percent:%v\n", percent)
+	for _, numb := range percent {
+		totalUsed += numb
+	}
+
 	return totalUsed, nil
 }
 
