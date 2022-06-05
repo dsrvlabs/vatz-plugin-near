@@ -34,9 +34,10 @@ func getLargeInteger(arr []int) int {
 }
 
 func (ms *machineStatusManager) GetDiskUsage() (*pluginpb.ExecuteResponse, error) {
+	fmt.Println("GetDiskUsage is called")
 	var flags []int
-	//diskPaths := [2]string{"/", "/mnt/near"}
-	diskPaths := [1]string{"/"}
+	diskPaths := [2]string{"/", "/mnt/near"}
+
 	message := ""
 
 	for idx, diskPath := range diskPaths {
@@ -93,6 +94,7 @@ func (ms *machineStatusManager) GetDiskUsage() (*pluginpb.ExecuteResponse, error
 }
 
 func (ms *machineStatusManager) GetCPUUsage() (*pluginpb.ExecuteResponse, error) {
+	fmt.Println("GetCPUUsage is called")
 	totalUsage, _ := MSInstance.GetCPUUsage()
 	cpuScale := 0
 	if totalUsage < 50.0 {
@@ -131,6 +133,7 @@ func (ms *machineStatusManager) GetCPUUsage() (*pluginpb.ExecuteResponse, error)
 }
 
 func (ms *machineStatusManager) GetMemoryUsage() (*pluginpb.ExecuteResponse, error) {
+	fmt.Println("GetMemoryUsage is called")
 	totalUsage, _ := MSInstance.GetMemoryUsage()
 	memoryScale := 0
 	if totalUsage < 60 {
