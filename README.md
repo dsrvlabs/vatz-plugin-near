@@ -30,5 +30,5 @@ Plugins for near protocol.
   make stop
   ```
 
-## 3. How to add Makefile for Run all plugins
+## 3. How to Manage Plugins with gRPC version. 
 (TBD)
