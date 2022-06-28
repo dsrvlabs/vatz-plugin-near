@@ -52,7 +52,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	diffValue := 3
 	timeTicker := 5
 
-	cmd := "curl -s http://142.132.143.229:3030/metrics | grep -e ^near_block_height_head"
+	cmd := "curl -s localhost:3030/metrics | grep -e ^near_block_height_head"
 	cmdOutputFirst := runCommand(cmd)
 	contentMSG := ""
 

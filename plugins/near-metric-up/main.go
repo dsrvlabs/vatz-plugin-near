@@ -50,7 +50,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	severity := pluginpb.SEVERITY_INFO
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	cmd := "curl -s http://142.132.143.229:3030/metrics"
+	cmd := "curl -s localhost:3030/metrics"
 
 	c, b := exec.CommandContext(ctx, "bash", "-c", cmd), new(strings.Builder)
 	c.Stdout = b
