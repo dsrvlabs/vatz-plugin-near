@@ -1,8 +1,19 @@
 #!/bin/bash
 
+declare -a plugins=("machine-status-cpu"
+                "machine-status-disk"
+                "machine-status-memory"
+                "near-metric-blockheight"
+                "near-metric-up"
+                )
+
 cd ..
-cd protocol-status-plugin
-make run
-cd ..
-cd machine-status-plugin
-make run
+cd plugins
+
+for name in "${plugins[@]}"
+do
+  cd $name
+  echo "Start Plugins $name"
+  make run
+  cd ..
+done
