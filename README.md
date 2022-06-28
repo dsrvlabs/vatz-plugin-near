@@ -26,7 +26,6 @@ Plugins for near protocol.
   ```
 
 ### 2.3. Stop all plugins
-.Build first with following command
   ```
   make stop
   ```
