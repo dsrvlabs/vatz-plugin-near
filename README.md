@@ -49,6 +49,13 @@
 
 ## 2. How to run the plugins
 
+<b> Special Conditions </b>
+
+1. Those following Plugins must declare network as below if you are running a VATZ on Testnet
+   - near-metric-chunk-produce-rate 
+   - near-metric-uptime
+   > ```./near-metric-chunk-produce-rate --network testnet```  
+
 ### 2.1 Build first with following command
   ```
   make build

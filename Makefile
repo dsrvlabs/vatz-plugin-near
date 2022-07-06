@@ -2,6 +2,7 @@ ifndef VERBOSE
 .SILENT:
 endif
 SHELL := /bin/bash
+
 build:
 	cd bin; $(SHELL) ./build_plugins.sh
 
