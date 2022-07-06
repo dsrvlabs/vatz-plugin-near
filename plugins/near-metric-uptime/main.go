@@ -100,6 +100,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	}
 
 	f := producedRate / expectedRate
+	fmt.Println("f: ", f)
 	fmt.Println("producedRate: ", producedRate)
 	fmt.Println("expectedRate: ", expectedRate)
 	blockProducedRate := math.Round(float64(f * 100))
