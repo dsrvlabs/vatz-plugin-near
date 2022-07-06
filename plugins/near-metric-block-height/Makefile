@@ -1,7 +1,11 @@
+SHELL := /bin/bash
 build:
 	@go build
 
 run:
+	$(SHELL) "exec -a near-metric-block-height ./near-metric-block-height >> ../../logs/near-metric-block-height.log 2>&1 &"
+
+exec:
 	exec -a "near-metric-block-height" ./near-metric-block-height >> ../../logs/near-metric-block-height.log 2>&1 &
 
 clean:
