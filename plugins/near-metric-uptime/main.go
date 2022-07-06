@@ -102,22 +102,23 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	f := producedRate / expectedRate
 	fmt.Println("producedRate: ", producedRate)
 	fmt.Println("expectedRate: ", expectedRate)
-	chunkProducedRate := math.Round(float64(f * 100))
+	blockProducedRate := math.Round(float64(f * 100))
+	fmt.Println("chunkProducedRate: ", blockProducedRate)
 	if state == pluginpb.STATE_SUCCESS {
-		if chunkProducedRate < 50 {
+		if blockProducedRate < 50 {
 			severity = pluginpb.SEVERITY_CRITICAL
-			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is way too lower than normal rate(95%)."
+			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is way too lower than normal rate(95%)."
 			log.Warn().
 				Str(methodName, "CRITICAL: "+contentMSG).
 				Msg(pluginName)
-		} else if chunkProducedRate < 94 {
+		} else if blockProducedRate < 94 {
 			severity = pluginpb.SEVERITY_WARNING
-			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is lower than normal rate(95%)."
+			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is lower than normal rate(95%)."
 			log.Warn().
 				Str(methodName, "WARNING: "+contentMSG).
 				Msg(pluginName)
 		} else {
-			contentMSG = "Node's uptime Rate is Normal as (" + fmt.Sprintf("%.2f", chunkProducedRate) + " %)"
+			contentMSG = "Node's uptime Rate is Normal as (" + fmt.Sprintf("%.2f", blockProducedRate) + " %)"
 			log.Info().
 				Str(methodName, "INFO: "+contentMSG).
 				Msg(pluginName)
