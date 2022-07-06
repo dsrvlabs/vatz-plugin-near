@@ -106,7 +106,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 
 	fmt.Println("producedRate: ", producedRate)
 	fmt.Println("expectedRate: ", expectedRate)
-	chunkProducedRate := math.Round(float64(producedRate / expectedRate * 100))
+	chunkProducedRate := math.Round(float64(producedRate) / float64(expectedRate) * 100)
 	fmt.Println("chunkProducedRate: ", chunkProducedRate)
 	if state == pluginpb.STATE_SUCCESS {
 		if chunkProducedRate < 51 {
