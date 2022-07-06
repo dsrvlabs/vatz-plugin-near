@@ -1,5 +1,12 @@
+SHELL := /bin/bash
 build:
 	@go build
 
 run:
-	exec -a "machine-status-cpu" ./machine-status-cpu --addr 127.0.0.1 --port 9091 >> ../../logs/machine-status-cpu.log 2>&1 &
+	$(SHELL) -c "exec -a machine-status-cpu ./machine-status-cpu >> ../../logs/machine-status-cpu.log 2>&1 &"
+
+exec:
+	exec -a "machine-status-cpu" ./machine-status-cpu >> ../../logs/machine-status-cpu.log 2>&1 &
+
+clean:
+	rm -rf machine-status-cpu

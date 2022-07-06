@@ -17,19 +17,23 @@ import (
 
 const (
 	// Default values.
-	defaultAddr = "127.0.0.1"
-	defaultPort = 9091
-	pluginName  = "near-metric-up"
+	defaultAddr   = "127.0.0.1"
+	defaultPort   = 10001
+	defaultTarget = "localhost"
+	pluginName    = "near-metric-alive"
+	methodName    = "NearGetAlive"
 )
 
 var (
-	addr string
-	port int
+	addr   string
+	port   int
+	target string
 )
 
 func init() {
 	flag.StringVar(&addr, "addr", defaultAddr, "IP Address(e.g. 0.0.0.0, 127.0.0.1)")
-	flag.IntVar(&port, "port", defaultPort, "Port number, defulat 9091")
+	flag.IntVar(&port, "port", defaultPort, "Port number, default 10001")
+	flag.StringVar(&target, "target", defaultTarget, "Target Node (e.g. 0.0.0.0, default localhost)")
 	flag.Parse()
 }
 
@@ -50,7 +54,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	severity := pluginpb.SEVERITY_INFO
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	cmd := "curl -s localhost:3030/metrics"
+	cmd := "curl -s " + target + ":3030/metrics"
 
 	c, b := exec.CommandContext(ctx, "bash", "-c", cmd), new(strings.Builder)
 	c.Stdout = b
@@ -61,18 +65,19 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	if len(b.String()) > 0 {
 		contentMSG = "NEAR Process is UP"
 		log.Info().
-			Str("NearUP", contentMSG).
-			Msg("near-metric-up")
+			Str(methodName, contentMSG).
+			Msg(pluginName)
 	} else {
 		contentMSG = "NEAR Process is DOWN"
+		state = pluginpb.STATE_FAILURE
 		severity = pluginpb.SEVERITY_CRITICAL
 		log.Error().
-			Str("NearUP", contentMSG).
-			Msg("near-metric-up")
+			Str(methodName, contentMSG).
+			Msg(pluginName)
 	}
 
 	ret := sdk.CallResponse{
-		FuncName:   "NearUP",
+		FuncName:   methodName,
 		Message:    contentMSG,
 		Severity:   severity,
 		State:      state,

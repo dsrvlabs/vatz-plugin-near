@@ -19,6 +19,7 @@ const (
 	defaultAddr = "127.0.0.1"
 	defaultPort = 9091
 	pluginName  = "machine-status-cpu"
+	methodName  = "GetMachineCPUUsage"
 )
 
 var (
@@ -28,14 +29,13 @@ var (
 
 func init() {
 	flag.StringVar(&addr, "addr", defaultAddr, "IP Address(e.g. 0.0.0.0, 127.0.0.1)")
-	flag.IntVar(&port, "port", defaultPort, "Port number, defulat 9091")
+	flag.IntVar(&port, "port", defaultPort, "Port number, default 9091")
 	flag.Parse()
 }
 
 func main() {
 	p := sdk.NewPlugin(pluginName)
 	p.Register(pluginFeature)
-
 	ctx := context.Background()
 	if err := p.Start(ctx, addr, port); err != nil {
 		fmt.Println("exit")
@@ -52,9 +52,12 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	_, err := cpu.Info()
 
 	if err != nil {
-		fmt.Printf("get cpu info failed, err:%v", err)
 		state = pluginpb.STATE_FAILURE
 		severity = pluginpb.SEVERITY_ERROR
+		log.Error().
+			Str(methodName, "Getting CPU info has failed.").
+			Msg(pluginName)
+
 	}
 
 	totalUsed := 0.0
@@ -71,7 +74,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 		cpuScale = 2
 	} else if totalUsed < 90 {
 		cpuScale = 3
-	} else if totalUsed >= 90 {
+	} else {
 		cpuScale = 4
 	}
 
@@ -85,11 +88,11 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	contentMSG := "Total CPU Usage: " + fmt.Sprintf("%.2f", totalUsed) + "%"
 
 	log.Info().
-		Str("GetCPUUsage", contentMSG).
-		Msg("machine-status-cpu")
+		Str(methodName, contentMSG).
+		Msg(pluginName)
 
 	ret := sdk.CallResponse{
-		FuncName:   "GetCPUUsage",
+		FuncName:   methodName,
 		Message:    contentMSG,
 		Severity:   severity,
 		State:      state,

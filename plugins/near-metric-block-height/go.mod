@@ -1,4 +1,4 @@
-module near-metric-up
+module near-metric-block-height
 
 go 1.18
 
