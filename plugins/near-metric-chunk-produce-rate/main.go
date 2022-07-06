@@ -66,7 +66,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	if network != "mainnet" {
 		networkAddr = "dsrvlabs.pool.f863973.m0"
 	}
-
+	fmt.Println("networkAddr:", networkAddr)
 	cmdChunkProduced := "curl -s " + target + ":3030/metrics | grep -e ^near_validators_chunks_produced{account_id='\"" + networkAddr + "\"'}"
 
 	cmdOutput1, err1 := runCommand(cmdChunkProduced)
@@ -112,18 +112,18 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 			severity = pluginpb.SEVERITY_CRITICAL
 			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(50%)."
 			log.Warn().
-				Str(methodName, "SUCCESS:"+contentMSG).
+				Str(methodName, "CRITICAL: "+contentMSG).
 				Msg(pluginName)
 		} else if chunkProducedRate < 95 {
 			severity = pluginpb.SEVERITY_WARNING
 			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(95%)."
 			log.Warn().
-				Str(methodName, "SUCCESS:"+contentMSG).
+				Str(methodName, "WARNING: "+contentMSG).
 				Msg(pluginName)
 		} else {
 			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + " %)"
 			log.Info().
-				Str(methodName, "SUCCESS:"+contentMSG).
+				Str(methodName, "SUCCESS: "+contentMSG).
 				Msg(pluginName)
 		}
 	}

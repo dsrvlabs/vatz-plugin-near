@@ -61,7 +61,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	if network != "mainnet" {
 		account = "dsrvlabs.pool.f863973.m0"
 	}
-
+	fmt.Println("account:", account)
 	cmdBlockProduced := "curl -s " + target + ":3030/metrics | grep -e ^near_validators_blocks_produced{account_id='\"" + account + "\"'}"
 
 	cmdOutput1, err1 := runCommand(cmdBlockProduced)
