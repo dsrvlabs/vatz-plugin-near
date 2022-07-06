@@ -3,7 +3,7 @@ build:
 	@go build
 
 run:
-	$(SHELL) "exec -a machine-status-memory ./machine-status-memory >> ../../logs/machine-status-memory.log 2>&1 &"
+	$(SHELL) -c "exec -a machine-status-memory ./machine-status-memory >> ../../logs/machine-status-memory.log 2>&1 &"
 
 exec:
 	exec -a "machine-status-memory" ./machine-status-memory >> ../../logs/machine-status-memory.log 2>&1 &
