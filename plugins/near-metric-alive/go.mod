@@ -1,4 +1,4 @@
-module near-metric-blockheight
+module near-metric-alive
 
 go 1.18
 

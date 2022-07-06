@@ -1,5 +1,6 @@
 #!/bin/bash
 
+## declare an array variable
 declare -a plugins=("machine-status-cpu"
                 "machine-status-disk"
                 "machine-status-memory"
@@ -10,13 +11,15 @@ declare -a plugins=("machine-status-cpu"
                 "near-metric-uptime"
                 )
 
+
 cd ..
 cd plugins
 
 for name in "${plugins[@]}"
 do
   cd $name
-  echo "Start Plugins $name"
-  make run
+  echo "clean $name"
+  make clean
   cd ..
 done
+

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"syscall"
 	"time"
@@ -18,8 +19,9 @@ import (
 const (
 	// Default values.
 	defaultAddr = "127.0.0.1"
-	defaultPort = 9091
+	defaultPort = 9092
 	pluginName  = "machine-status-disk"
+	methodName  = "GetMachineDiskUsage"
 )
 
 var (
@@ -29,7 +31,7 @@ var (
 
 func init() {
 	flag.StringVar(&addr, "addr", defaultAddr, "IP Address(e.g. 0.0.0.0, 127.0.0.1)")
-	flag.IntVar(&port, "port", defaultPort, "Port number, defulat 9091")
+	flag.IntVar(&port, "port", defaultPort, "Port number, default 9091")
 	flag.Parse()
 }
 
@@ -103,25 +105,28 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 			flagStatus = 2
 		} else if defaultUsage < 95 {
 			flagStatus = 3
-		} else if defaultUsage >= 95 {
+		} else {
 			flagStatus = 4
 		}
 
 		flags = append(flags, flagStatus)
-		if idx > 0 && message != "" {
-			message += "| "
+
+		if idx > 0 && len(message) > 0 {
+			message += " \n "
 		}
 
-		usedSTR := fmt.Sprintf("%f", used)
-		allSTR := fmt.Sprintf("%f", all)
-		message += "Mounted on " + diskPath + " with Usage: " + currentUsage + "%" + " (" + usedSTR + "/" + allSTR + ")"
+		if !math.IsNaN(defaultUsage) {
+			usedSTR := fmt.Sprintf("%f", used)
+			allSTR := fmt.Sprintf("%f", all)
+			message += "Mounted on " + diskPath + " with Usage: " + currentUsage + "%" + " (" + usedSTR + "/" + allSTR + ")"
+		}
 	}
 
 	severityScale := getLargeInteger(flags)
 
 	log.Info().
-		Str("GetDiskUsage", message).
-		Msg("machine-status-disk")
+		Str(methodName, message).
+		Msg(pluginName)
 
 	if message == "" {
 		state = pluginpb.STATE_FAILURE
@@ -135,9 +140,8 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 		}
 	}
 
-	// TODO: Fill here.
 	ret := sdk.CallResponse{
-		FuncName:   "GetDiskUsage",
+		FuncName:   methodName,
 		Message:    message,
 		Severity:   severity,
 		State:      state,

@@ -17,18 +17,20 @@ import (
 const (
 	// Default values.
 	defaultAddr = "127.0.0.1"
-	defaultPort = 9091
+	defaultPort = 9093
 	pluginName  = "machine-status-memory"
+	methodName  = "GetMachineMemoryUsage"
 )
 
 var (
-	addr string
-	port int
+	addr   string
+	target string
+	port   int
 )
 
 func init() {
 	flag.StringVar(&addr, "addr", defaultAddr, "IP Address(e.g. 0.0.0.0, 127.0.0.1)")
-	flag.IntVar(&port, "port", defaultPort, "Port number, defulat 9091")
+	flag.IntVar(&port, "port", defaultPort, "Port number, default 9091")
 	flag.Parse()
 }
 
@@ -64,7 +66,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 		memoryScale = 2
 	} else if totalUsage < 90 {
 		memoryScale = 3
-	} else if totalUsage >= 90 {
+	} else {
 		memoryScale = 4
 	}
 
@@ -79,11 +81,11 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	contentMSG := "Total Memory Usage: " + fmt.Sprintf("%.2f", totalUsage) + "%"
 
 	log.Info().
-		Str("GetMemoryUsage", contentMSG).
-		Msg("machine-status-memory")
+		Str(methodName, contentMSG).
+		Msg(pluginName)
 
 	ret := sdk.CallResponse{
-		FuncName:   "GetMemoryUsage",
+		FuncName:   methodName,
 		Message:    contentMSG,
 		Severity:   severity,
 		State:      state,

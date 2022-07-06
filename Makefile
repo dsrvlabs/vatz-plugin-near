@@ -8,3 +8,6 @@ start:
 
 stop:
 	cd bin; /bin/bash stop_plugins.sh
+
+clean:
+	cd bin; /bin/bash clean_plugins.sh

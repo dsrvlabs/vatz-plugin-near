@@ -3,8 +3,11 @@
 declare -a plugins=("machine-status-cpu"
                 "machine-status-disk"
                 "machine-status-memory"
-                "near-metric-blockheight"
-                "near-metric-up"
+                "near-metric-alive"
+                "near-metric-block-height"
+                "near-metric-chunk-produce-rate"
+                "near-metric-number-of-peer"
+                "near-metric-uptime"
                 )
 
 cd ..
