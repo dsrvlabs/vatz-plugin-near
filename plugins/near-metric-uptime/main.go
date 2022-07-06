@@ -99,12 +99,8 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 			Msg(pluginName)
 	}
 
-	f := producedRate / expectedRate
-	fmt.Println("f: ", f)
-	fmt.Println("producedRate: ", producedRate)
-	fmt.Println("expectedRate: ", expectedRate)
-	blockProducedRate := math.Round(float64(f * 100))
-	fmt.Println("chunkProducedRate: ", blockProducedRate)
+	blockProducedRate := math.Round(float64(producedRate) / float64(expectedRate) * 100)
+	fmt.Println("blockProducedRate: ", blockProducedRate)
 	if state == pluginpb.STATE_SUCCESS {
 		if blockProducedRate < 50 {
 			severity = pluginpb.SEVERITY_CRITICAL
