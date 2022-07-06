@@ -1,13 +1,15 @@
-.PHONY: do_script
-
+ifndef VERBOSE
+.SILENT:
+endif
+SHELL := /bin/bash
 build:
-	cd bin; /bin/bash build_plugins.sh
+	cd bin; $(SHELL) ./build_plugins.sh
 
 start:
-	cd bin; /bin/bash start_plugins.sh
+	cd bin; $(SHELL) ./start_plugins.sh
 
 stop:
-	cd bin; /bin/bash stop_plugins.sh
+	cd bin; $(SHELL) ./stop_plugins.sh
 
 clean:
-	cd bin; /bin/bash clean_plugins.sh
+	cd bin; $(SHELL) ./clean_plugins.sh

@@ -11,15 +11,17 @@ declare -a plugins=("machine-status-cpu"
                 "near-metric-uptime"
                 )
 
-
 cd ..
 cd plugins
-
+echo "Cleaning All Plugins"
+echo "==================="
 for name in "${plugins[@]}"
 do
   cd $name
-  echo "clean $name"
-  make clean
+  echo "=> cleaning $name"
+  make clean >/dev/null
   cd ..
 done
+echo "==================="
+echo "All Plugins Cleaned"
 

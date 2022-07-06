@@ -12,11 +12,14 @@ declare -a plugins=("machine-status-cpu"
 
 cd ..
 cd plugins
-
+echo "Start All Plugins"
+echo "==================="
 for name in "${plugins[@]}"
 do
   cd $name
-  echo "Start Plugins $name"
-  make run
+  echo "=> Starting Plugins $name"
+  make run >/dev/null
   cd ..
 done
+echo "==================="
+echo "All Plugins are started!"
