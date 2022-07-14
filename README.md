@@ -134,7 +134,6 @@ Cleaning All Plugins
 All Plugins Cleaned
 ```
 
-
 ## 3. How to develop Plugins
 For Plugins Developments
 1. Create a new plugin folder with plugin's name under plugins.
