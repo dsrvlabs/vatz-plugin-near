@@ -1,3 +1,15 @@
+@rootwarp @xellos00
+
+Interface Type -> module 정리
+CLI Command
+(TBD)
+config
+rest of tasks
+3.2 Health checker
+3.3 Monitoring
+
+
+
 # vatz-plugin-near
 > This is Plugins for VATZ that check status of NEAR protocol.
 >
@@ -121,7 +133,6 @@ Cleaning All Plugins
 ===================
 All Plugins Cleaned
 ```
-
 
 ## 3. How to develop Plugins
 For Plugins Developments
