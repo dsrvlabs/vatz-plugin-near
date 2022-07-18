@@ -54,16 +54,19 @@ func main() {
 
 func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, error) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+
 	state := pluginpb.STATE_SUCCESS
 	severity := pluginpb.SEVERITY_INFO
+	expRate := math.NaN()
+	prdRate := math.NaN()
+
 	contentMSG := ""
 	account := "dsrvlabs.poolv1.near"
 	if network != "mainnet" {
 		account = "dsrvlabs.pool.f863973.m0"
 	}
-	fmt.Println("account:", account)
-	cmdBlockProduced := "curl -s " + target + ":3030/metrics | grep -e ^near_validators_blocks_produced{account_id='\"" + account + "\"'}"
 
+	cmdBlockProduced := "curl -s " + target + ":3030/metrics | grep -e ^near_validators_blocks_produced{account_id='\"" + account + "\"'}"
 	cmdOutput1, err1 := runCommand(cmdBlockProduced)
 	if err1 != nil {
 		state = pluginpb.STATE_FAILURE
@@ -72,7 +75,6 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	}
 
 	cmdBlockExpected := "curl -s " + target + ":3030/metrics | grep -e ^near_validators_blocks_expected{account_id='\"" + account + "\"'}"
-
 	cmdOutput2, err2 := runCommand(cmdBlockExpected)
 	if err2 != nil {
 		state = pluginpb.STATE_FAILURE
@@ -81,44 +83,53 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	}
 
 	producedVal := strings.Split(cmdOutput1, " ")
-	producedRate, errPR := strconv.Atoi(producedVal[1])
-	if errPR != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		log.Error().
-			Str(methodName, "Parsing Error on block produced Block").
-			Msg(pluginName)
-	}
 	expectedVal := strings.Split(cmdOutput2, " ")
-	expectedRate, errER := strconv.Atoi(expectedVal[1])
-	if errER != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		log.Error().
-			Str(methodName, "Parsing Error on block expected Rate").
-			Msg(pluginName)
+
+	if len(producedVal) > 1 && len(producedVal) > 1 {
+		producedRate, errPR := strconv.Atoi(producedVal[1])
+		if errPR != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			log.Error().
+				Str(methodName, "Parsing Error on block produced Block").
+				Msg(pluginName)
+		}
+		expectedRate, errER := strconv.Atoi(expectedVal[1])
+		if errER != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			log.Error().
+				Str(methodName, "Parsing Error on block expected Rate").
+				Msg(pluginName)
+		}
+
+		if state == pluginpb.STATE_SUCCESS {
+			prdRate = float64(producedRate)
+			expRate = float64(expectedRate)
+		}
 	}
 
-	blockProducedRate := math.Round(float64(producedRate) / float64(expectedRate) * 100)
-	fmt.Println("blockProducedRate: ", blockProducedRate)
-	if state == pluginpb.STATE_SUCCESS {
-		if blockProducedRate < 50 {
-			severity = pluginpb.SEVERITY_CRITICAL
-			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is way too lower than normal rate(95%)."
-			log.Warn().
-				Str(methodName, "CRITICAL: "+contentMSG).
-				Msg(pluginName)
-		} else if blockProducedRate < 94 {
-			severity = pluginpb.SEVERITY_WARNING
-			contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is lower than normal rate(95%)."
-			log.Warn().
-				Str(methodName, "WARNING: "+contentMSG).
-				Msg(pluginName)
-		} else {
-			contentMSG = "Node's uptime Rate is Normal as (" + fmt.Sprintf("%.2f", blockProducedRate) + " %)"
-			log.Info().
-				Str(methodName, "INFO: "+contentMSG).
-				Msg(pluginName)
+	if !math.IsNaN(prdRate) && !math.IsNaN(expRate) {
+		blockProducedRate := math.Round(prdRate / expRate * 100)
+		if state == pluginpb.STATE_SUCCESS {
+			if blockProducedRate < 50 {
+				severity = pluginpb.SEVERITY_CRITICAL
+				contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is way too lower than normal rate(95%)."
+				log.Warn().
+					Str(methodName, "CRITICAL: "+contentMSG).
+					Msg(pluginName)
+			} else if blockProducedRate < 94 {
+				severity = pluginpb.SEVERITY_WARNING
+				contentMSG = "Node's uptime Rate is (" + fmt.Sprintf("%.2f", blockProducedRate) + "), which is lower than normal rate(95%)."
+				log.Warn().
+					Str(methodName, "WARNING: "+contentMSG).
+					Msg(pluginName)
+			} else {
+				contentMSG = "Node's uptime Rate is Normal as (" + fmt.Sprintf("%.2f", blockProducedRate) + " %)"
+				log.Info().
+					Str(methodName, "INFO: "+contentMSG).
+					Msg(pluginName)
+			}
 		}
 	}
 
@@ -129,6 +140,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 		State:      state,
 		AlertTypes: []pluginpb.ALERT_TYPE{pluginpb.ALERT_TYPE_DISCORD},
 	}
+
 	return ret, nil
 }
 
