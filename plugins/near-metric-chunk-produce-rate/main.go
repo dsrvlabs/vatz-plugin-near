@@ -60,6 +60,8 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 
 	state := pluginpb.STATE_SUCCESS
 	severity := pluginpb.SEVERITY_INFO
+	expRate := math.NaN()
+	prdRate := math.NaN()
 	contentMSG := ""
 
 	networkAddr := "dsrvlabs.poolv1.near"
@@ -86,47 +88,59 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	}
 
 	producedVal := strings.Split(cmdOutput1, " ")
-	producedRate, errPR := strconv.Atoi(producedVal[1])
-	if errPR != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		log.Error().
-			Str(methodName, "Parsing Error on chunk produced Rate").
-			Msg(pluginName)
-	}
 	expectedVal := strings.Split(cmdOutput2, " ")
-	expectedRate, errER := strconv.Atoi(expectedVal[1])
-	if errER != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		log.Error().
-			Str(methodName, "Parsing Error on chunk expected Rate").
-			Msg(pluginName)
-	}
 
-	chunkProducedRate := math.Round(float64(producedRate) / float64(expectedRate) * 100)
-	fmt.Println("chunkProducedRate: ", chunkProducedRate)
-	if state == pluginpb.STATE_SUCCESS {
-		if chunkProducedRate < 51 {
-			severity = pluginpb.SEVERITY_CRITICAL
-			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(50%)."
-			log.Warn().
-				Str(methodName, "CRITICAL: "+contentMSG).
+	if len(producedVal) > 1 && len(producedVal) > 1 {
+		producedRate, errPR := strconv.Atoi(producedVal[1])
+		if errPR != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			log.Error().
+				Str(methodName, "Parsing Error on chunk produced Rate").
 				Msg(pluginName)
-		} else if chunkProducedRate < 95 {
-			severity = pluginpb.SEVERITY_WARNING
-			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(95%)."
-			log.Warn().
-				Str(methodName, "WARNING: "+contentMSG).
+		}
+
+		expectedRate, errER := strconv.Atoi(expectedVal[1])
+		if errER != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			log.Error().
+				Str(methodName, "Parsing Error on chunk expected Rate").
 				Msg(pluginName)
-		} else {
-			contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + " %)"
-			log.Info().
-				Str(methodName, "SUCCESS: "+contentMSG).
-				Msg(pluginName)
+		}
+
+		if state == pluginpb.STATE_SUCCESS {
+			prdRate = float64(producedRate)
+			expRate = float64(expectedRate)
 		}
 	}
 
+	if !math.IsNaN(prdRate) && !math.IsNaN(expRate) {
+		chunkProducedRate := math.Round(prdRate / expRate * 100)
+		log.Info().
+			Str("Calculated Chunk Produce Rate: ", contentMSG).
+			Msg(pluginName)
+		if state == pluginpb.STATE_SUCCESS {
+			if chunkProducedRate < 51 {
+				severity = pluginpb.SEVERITY_CRITICAL
+				contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(50%)."
+				log.Warn().
+					Str(methodName, "CRITICAL: "+contentMSG).
+					Msg(pluginName)
+			} else if chunkProducedRate < 95 {
+				severity = pluginpb.SEVERITY_WARNING
+				contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + "), which is under normal rate(95%)."
+				log.Warn().
+					Str(methodName, "WARNING: "+contentMSG).
+					Msg(pluginName)
+			} else {
+				contentMSG = "Chunk Produced Rate is (" + fmt.Sprintf("%.2f", chunkProducedRate) + " %)"
+				log.Info().
+					Str(methodName, "SUCCESS: "+contentMSG).
+					Msg(pluginName)
+			}
+		}
+	}
 	ret := sdk.CallResponse{
 		FuncName:   methodName,
 		Message:    contentMSG,

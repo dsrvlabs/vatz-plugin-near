@@ -66,28 +66,29 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	}
 
 	f := strings.Split(cmdOutput, " ")
-	numOfPeers, numErr := strconv.Atoi(f[1])
-	if numErr != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		numOfPeers = 0
-		log.Error().
-			Str(methodName, "Parsing Connected number of peers").
-			Msg(pluginName)
-	}
-
-	if state == pluginpb.STATE_SUCCESS {
-		if numOfPeers == 0 {
-			severity = pluginpb.SEVERITY_CRITICAL
-			contentMSG = "Number of Peer is 0."
-			log.Warn().
-				Str(methodName, "CRITICAL: "+contentMSG).
+	if len(f) > 1 {
+		numOfPeers, numErr := strconv.Atoi(f[1])
+		if numErr != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			numOfPeers = 0
+			log.Error().
+				Str(methodName, "Parsing Connected number of peers").
 				Msg(pluginName)
-		} else {
-			contentMSG = "Number of Peer is " + fmt.Sprintf("%d", numOfPeers) + "."
-			log.Info().
-				Str(methodName, "INFO: "+contentMSG).
-				Msg(pluginName)
+		}
+		if state == pluginpb.STATE_SUCCESS {
+			if numOfPeers == 0 {
+				severity = pluginpb.SEVERITY_CRITICAL
+				contentMSG = "Number of Peer is 0."
+				log.Warn().
+					Str(methodName, "CRITICAL: "+contentMSG).
+					Msg(pluginName)
+			} else {
+				contentMSG = "Number of Peer is " + fmt.Sprintf("%d", numOfPeers) + "."
+				log.Info().
+					Str(methodName, "INFO: "+contentMSG).
+					Msg(pluginName)
+			}
 		}
 	}
 
