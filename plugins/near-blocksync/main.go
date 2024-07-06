@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	// Default values.
+	// Default values
 	defaultAddr     = "127.0.0.1"
 	defaultPort     = 10002
 	defaultTarget   = "localhost"
