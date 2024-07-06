@@ -23,7 +23,7 @@ const (
 	defaultPort    = 10005
 	defaultTarget  = "localhost"
 	defaultNetwork = "mainnet"
-	pluginName     = "near-metric-uptime"
+	pluginName     = "uptime"
 	methodName     = "NearGetUptime"
 )
 
