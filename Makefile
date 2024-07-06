@@ -1,16 +1,21 @@
-ifndef VERBOSE
-.SILENT:
-endif
-SHELL := /bin/bash
+SUBDIRS := $(wildcard plugins/*/.)
 
-build:
-	cd bin; $(SHELL) ./build_plugins.sh
+all:
+	for dir in $(SUBDIRS); do \
+		cd $$dir && go build && cd ../../; \
+	done
 
-start:
-	cd bin; $(SHELL) ./start_plugins.sh
-
-stop:
-	cd bin; $(SHELL) ./stop_plugins.sh
+install:
+	for dir in $(SUBDIRS); do \
+		cd $$dir && go install && cd ../../; \
+	done
 
 clean:
-	cd bin; $(SHELL) ./clean_plugins.sh
+	for dir in $(SUBDIRS); do \
+		cd $$dir && go clean && cd ../../; \
+	done
+
+test:
+	go test ./...
+
+.PHONY: all install clean test $(SUBDIRS)
