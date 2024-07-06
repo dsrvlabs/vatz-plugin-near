@@ -22,7 +22,7 @@ const (
 	defaultPort     = 10002
 	defaultTarget   = "localhost"
 	defaultTimeTick = 5
-	pluginName      = "near-metric-block-height"
+	pluginName      = "near-blocksync"
 	methodName      = "NearGetBlockHeight"
 )
 
