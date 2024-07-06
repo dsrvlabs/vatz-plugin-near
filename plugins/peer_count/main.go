@@ -21,7 +21,7 @@ const (
 	defaultAddr   = "127.0.0.1"
 	defaultPort   = 10004
 	defaultTarget = "localhost"
-	pluginName    = "near-metric-number-of-peer"
+	pluginName    = "peer_count"
 	methodName    = "NearGetNumberOfPeer"
 )
 

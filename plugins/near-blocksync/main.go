@@ -17,12 +17,12 @@ import (
 )
 
 const (
-	// Default values.
+	// Default values
 	defaultAddr     = "127.0.0.1"
 	defaultPort     = 10002
 	defaultTarget   = "localhost"
 	defaultTimeTick = 5
-	pluginName      = "near-metric-block-height"
+	pluginName      = "near-blocksync"
 	methodName      = "NearGetBlockHeight"
 )
 

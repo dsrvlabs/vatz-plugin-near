@@ -7,30 +7,33 @@ import (
 	"github.com/dsrvlabs/vatz/sdk"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/shirou/gopsutil/mem"
 	"golang.org/x/net/context"
 	"google.golang.org/protobuf/types/known/structpb"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
 )
 
 const (
 	// Default values.
-	defaultAddr = "127.0.0.1"
-	defaultPort = 9093
-	pluginName  = "machine-status-memory"
-	methodName  = "GetMachineMemoryUsage"
+	defaultAddr   = "127.0.0.1"
+	defaultPort   = 10001
+	defaultTarget = "localhost"
+	pluginName    = "is_alive"
+	methodName    = "NearGetAlive"
 )
 
 var (
 	addr   string
-	target string
 	port   int
+	target string
 )
 
 func init() {
 	flag.StringVar(&addr, "addr", defaultAddr, "IP Address(e.g. 0.0.0.0, 127.0.0.1)")
-	flag.IntVar(&port, "port", defaultPort, "Port number, default 9091")
+	flag.IntVar(&port, "port", defaultPort, "Port number, default 10001")
+	flag.StringVar(&target, "target", defaultTarget, "Target Node (e.g. 0.0.0.0, default localhost)")
 	flag.Parse()
 }
 
@@ -50,39 +53,27 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	state := pluginpb.STATE_SUCCESS
 	severity := pluginpb.SEVERITY_INFO
 
-	vmStat, err := mem.VirtualMemory()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	cmd := "curl -s " + target + ":3030/metrics"
 
-	if err != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-	}
+	c, b := exec.CommandContext(ctx, "bash", "-c", cmd), new(strings.Builder)
+	c.Stdout = b
+	c.Run()
 
-	totalUsage := vmStat.UsedPercent
-
-	memoryScale := 0
-	if totalUsage < 60 {
-		memoryScale = 1
-	} else if totalUsage < 80 {
-		memoryScale = 2
-	} else if totalUsage < 90 {
-		memoryScale = 3
+	cancel()
+	contentMSG := ""
+	if len(b.String()) > 0 {
+		contentMSG = "NEAR Process is UP"
+		log.Info().
+			Str(methodName, contentMSG).
+			Msg(pluginName)
 	} else {
-		memoryScale = 4
+		contentMSG = "NEAR Process is DOWN"
+		severity = pluginpb.SEVERITY_CRITICAL
+		log.Error().
+			Str(methodName, contentMSG).
+			Msg(pluginName)
 	}
-
-	if state == pluginpb.STATE_SUCCESS {
-		if memoryScale > 3 {
-			severity = pluginpb.SEVERITY_CRITICAL
-		} else if memoryScale > 2 {
-			severity = pluginpb.SEVERITY_WARNING
-		}
-	}
-
-	contentMSG := "Total Memory Usage: " + fmt.Sprintf("%.2f", totalUsage) + "%"
-
-	log.Info().
-		Str(methodName, contentMSG).
-		Msg(pluginName)
 
 	ret := sdk.CallResponse{
 		FuncName:   methodName,
