@@ -24,7 +24,7 @@ const (
 	defaultNetwork = "mainnet"
 	defaultTarget  = "localhost"
 	defaultNode    = "dsrvlabs.poolv1.near"
-	pluginName     = "chunk-produce-rate"
+	pluginName     = "chunk_produce_rate"
 	methodName     = "NearGetChunkProduceRate"
 )
 
