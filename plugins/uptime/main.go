@@ -44,7 +44,9 @@ func init() {
 
 func main() {
 	p := sdk.NewPlugin(pluginName)
-	p.Register(pluginFeature)
+	if err := p.Register(pluginFeature); err != nil {
+		log.Fatal().Err(err).Msg("Failed to register plugin feature")
+	}
 
 	ctx := context.Background()
 	if err := p.Start(ctx, addr, port); err != nil {
@@ -85,7 +87,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	producedVal := strings.Split(cmdOutput1, " ")
 	expectedVal := strings.Split(cmdOutput2, " ")
 
-	if len(producedVal) > 1 && len(producedVal) > 1 {
+	if len(producedVal) > 1 && len(expectedVal) > 1 {
 		producedRate, errPR := strconv.Atoi(producedVal[1])
 		if errPR != nil {
 			state = pluginpb.STATE_FAILURE
@@ -148,9 +150,7 @@ func runCommand(cmd string) (string, error) {
 	stdOutput := ""
 	out, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
-		log.Error().
-			Str(methodName, "Fail to get").
-			Msg(pluginName)
+		log.Error().Str(methodName, "Fail to get").Msg(pluginName)
 		return stdOutput, err
 	}
 	outputFinal := strings.TrimSpace(string(out))
