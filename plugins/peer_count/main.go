@@ -40,7 +40,9 @@ func init() {
 
 func main() {
 	p := sdk.NewPlugin(pluginName)
-	p.Register(pluginFeature)
+	if err := p.Register(pluginFeature); err != nil {
+		log.Fatal().Err(err).Msg("Failed to register plugin feature")
+	}
 
 	ctx := context.Background()
 	if err := p.Start(ctx, addr, port); err != nil {
