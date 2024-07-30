@@ -14,6 +14,8 @@ clean:
 	for dir in $(SUBDIRS); do \
 		cd $$dir && go clean && cd ../../; \
 	done
+lint:
+	golangci-lint run --timeout 5m
 
 test:
 	go test ./...

@@ -44,7 +44,9 @@ func init() {
 
 func main() {
 	p := sdk.NewPlugin(pluginName)
-	p.Register(pluginFeature)
+	if err := p.Register(pluginFeature); err != nil {
+		log.Fatal().Err(err).Msg("Failed to register plugin feature")
+	}
 
 	ctx := context.Background()
 	if err := p.Start(ctx, addr, port); err != nil {
@@ -53,27 +55,31 @@ func main() {
 }
 
 func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, error) {
+	var (
+		contentMSG string
+		BHValInt   int
+	)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	state := pluginpb.STATE_SUCCESS
 	severity := pluginpb.SEVERITY_INFO
 
 	cmd := "curl -s " + target + ":3030/metrics | grep -e ^near_block_height_head"
-	contentMSG := ""
 	cmdOutput, err := runCommand(cmd)
 	if err != nil {
 		state = pluginpb.STATE_FAILURE
 		severity = pluginpb.SEVERITY_ERROR
 		contentMSG = "Fail to get Block Height 1st in Diff"
-
 	}
-	bHeightCurrent := strings.Split(cmdOutput, " ")
-	BHValInt, errParse := strconv.Atoi(bHeightCurrent[1])
-	if errParse != nil {
-		state = pluginpb.STATE_FAILURE
-		severity = pluginpb.SEVERITY_ERROR
-		log.Error().
-			Str(methodName, "Parsing Error from Current BlockHeight").
-			Msg(pluginName)
+
+	if cmdOutput != "" {
+		bHeightCurrent := strings.Split(cmdOutput, " ")
+		BHValIntP, errParse := strconv.Atoi(bHeightCurrent[1])
+		if errParse != nil {
+			state = pluginpb.STATE_FAILURE
+			severity = pluginpb.SEVERITY_ERROR
+			log.Error().Str(methodName, "Parsing Error from Current BlockHeight").Msg(pluginName)
+		}
+		BHValInt = BHValIntP
 	}
 
 	if state == pluginpb.STATE_SUCCESS {
