@@ -55,10 +55,8 @@ func main() {
 }
 
 func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, error) {
-	var (
-		contentMSG string
-		BHValInt   int
-	)
+	var contentMSG string
+
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	state := pluginpb.STATE_SUCCESS
 	severity := pluginpb.SEVERITY_INFO
@@ -68,21 +66,19 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 	if err != nil {
 		state = pluginpb.STATE_FAILURE
 		severity = pluginpb.SEVERITY_ERROR
+
 		contentMSG = "Fail to get Block Height 1st in Diff"
 	}
 
-	if cmdOutput != "" {
+	if state == pluginpb.STATE_SUCCESS {
 		bHeightCurrent := strings.Split(cmdOutput, " ")
-		BHValIntP, errParse := strconv.Atoi(bHeightCurrent[1])
+		BHValInt, errParse := strconv.Atoi(bHeightCurrent[1])
 		if errParse != nil {
 			state = pluginpb.STATE_FAILURE
 			severity = pluginpb.SEVERITY_ERROR
 			log.Error().Str(methodName, "Parsing Error from Current BlockHeight").Msg(pluginName)
 		}
-		BHValInt = BHValIntP
-	}
 
-	if state == pluginpb.STATE_SUCCESS {
 		if preBlockHeight == -1 {
 			preBlockHeight = BHValInt
 			contentMSG = "Setting checked first value of BlockHeight"
@@ -115,15 +111,10 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 }
 
 func runCommand(cmd string) (string, error) {
-	stdOutput := ""
 	out, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
-		log.Error().
-			Str(methodName, "Fail to get block height").
-			Msg(pluginName)
-		return stdOutput, err
+		log.Error().Str(methodName, "Fail to get block height").Msg(pluginName)
+		return "", err
 	}
-	outputFinal := strings.TrimSpace(string(out))
-	stdOutput = outputFinal
-	return stdOutput, nil
+	return strings.TrimSpace(string(out)), nil
 }
