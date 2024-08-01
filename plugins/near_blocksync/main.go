@@ -89,7 +89,7 @@ func pluginFeature(info, option map[string]*structpb.Value) (sdk.CallResponse, e
 			severity = pluginpb.SEVERITY_CRITICAL
 			contentMSG = fmt.Sprintf("Block Height's increase has halted for the moment by (%d) > %d | %d", diff, preBlockHeight, BHValInt)
 		} else if diff < blockDiff {
-			severity = pluginpb.SEVERITY_ERROR
+			severity = pluginpb.SEVERITY_WARNING
 			contentMSG = fmt.Sprintf("Block Height is NOT increasing for the moment by (%d) > %d | %d", diff, preBlockHeight, BHValInt)
 		} else {
 			contentMSG = fmt.Sprintf("Block Height is increasing by (%d) from %d To %d", diff, preBlockHeight, BHValInt)
